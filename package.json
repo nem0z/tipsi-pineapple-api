@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "API designed with node.JS + Express. Which allow you to interact with pineapple's catalog and order some phone",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
   },
   "homepage": "https://github.com/nem0z/tipsi-pineapple-api#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.1"
   }
 }
