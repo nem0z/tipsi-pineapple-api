@@ -1,0 +1,22 @@
+[
+    {
+        "model": "piPhone 12",
+        "desc": "iPhone 12 at a fair price"
+    },
+    {
+        "model": "piPhone 13",
+        "desc": "iPhone 13 at a fair price"
+    },
+    {
+        "model": "piPhone 12 PRO",
+        "desc": "iPhone 12 at a fair price, designed for pro"
+    },
+    {
+        "model": "piPhone 13 PRO",
+        "desc": "iPhone 13 at a fair price, designed for pro"
+    }, 
+    {
+        "model": "piPhone 12 Mini",
+        "desc": "Small iPhone 12 at a fair price"
+    }
+]

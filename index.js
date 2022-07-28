@@ -1,5 +1,5 @@
 import express from 'express';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 // import cors from 'cors'; // A voir
 
 const app = express(); // Create express server
@@ -24,32 +24,43 @@ app.use(express.json());
 // Defining routes
 
 app.get('/products', (req, res) => {
-    res.json([
-        {
-            'id': 1,
-            'name': 'piPhone1',
-            'desc': 'First model of piPhone !',
-        },
-        {
-            'id': 2,
-            'name': 'piPhone2',
-            'desc': 'Seconde model of piPhone !',
-        },
-        {
-            'id': 3,
-            'name': 'piPhone3',
-            'desc': 'Third model of piPhone !',
-        },
-    ])
+
+    db.collection('products').find({}).toArray()
+        .then(docs => {
+            return res.status(200).json(docs);
+        })
+        .catch(err => {
+            console.error(err);
+            return res.sendStatus(500);
+        });
+
 });
 
 app.get('/product/:id', (req, res) => {
-    console.log(req.params?.id);
-    res.sendStatus(200);
+    const id = req.params?.id;
+
+    if(!id) return res.send(400);
+
+    db.collection('products').findOne(ObjectId(id))
+        .then(doc => {
+            return res.status(200).json(doc);
+        })
+        .catch(err => { // A revoir
+            const error = {ok: false, status: 500, message: 'Data not foud'};
+            return res.status(500).json(error);
+        });
 });
 
 app.get('/orders', (req, res) => {
     
+    db.collection('orders').find({}).toArray(function(err, docs) {
+        if(err) {
+            console.error(err);
+            return res.sendStatus(500);
+        }
+        res.status(200).json(docs);
+    });
+
 });
 
 app.post('/order', (req, res) => {
