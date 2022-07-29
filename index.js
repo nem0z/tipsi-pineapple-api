@@ -1,19 +1,15 @@
 import express from 'express';
-import nedb from nedb;
+import Datastore from 'nedb';
 // import cors from 'cors'; // A voir
 
 const app = express(); // Create express server
 
-// Def const 
-const dbUrl = 'mongodb://localhost:27017';
-const dbName = 'PineAppleDB';
-let db;
 
-// Connect mongodb
-MongoClient.connect(dbUrl, function(err, client) {
-    console.log("Successfully connected to mongodb server");
-    db = client.db(dbName);
-  });
+// Def db
+const db = {
+    products: new Datastore({ filename: './db/products.db', autoload: true }),
+    orders: new Datastore({ filename: './db/orders.db', autoload: true })
+};
   
 
 // settings
@@ -25,14 +21,10 @@ app.use(express.json());
 
 app.get('/products', (req, res) => {
 
-    db.collection('products').find({}).toArray()
-        .then(docs => {
-            return res.status(200).json(docs);
-        })
-        .catch(err => {
-            console.error(err);
-            return res.sendStatus(500);
-        });
+    db.products.find({}, (err, docs) => {
+        if(err) return res.sendStatus(500);
+        return res.status(200).json(docs);
+    });
 
 });
 
@@ -41,24 +33,22 @@ app.get('/product/:id', (req, res) => {
 
     if(!id) return res.send(400);
 
-    db.collection('products').findOne(ObjectId(id))
-        .then(doc => {
-            return res.status(200).json(doc);
-        })
-        .catch(err => { // A revoir
+    db.products.findOne({ _id: id }, (err, doc) => {
+        if(err) {
             const error = {ok: false, status: 500, message: 'Data not foud'};
             return res.status(500).json(error);
-        });
+        }
+        return res.status(200).json(doc);
+        
+    });
 });
 
 app.get('/orders', (req, res) => {
     
-    db.collection('orders').find({}).toArray(function(err, docs) {
-        if(err) {
-            console.error(err);
-            return res.sendStatus(500);
-        }
-        res.status(200).json(docs);
+    db.orders.find({}, (err, docs) => {
+        if(err) return res.sendStatus(500);
+        return res.status(200).json(docs);
+        
     });
 
 });
@@ -66,9 +56,14 @@ app.get('/orders', (req, res) => {
 app.post('/order', (req, res) => {
     console.log(req.body);
 
-    if(!req.body?.order) return res.sendStatus(400);
+    if(!req.body) return res.sendStatus(400);
+    const order = { order: req.body };
 
-    res.sendStatus(201);
+    db.orders.insert(order, (err, newDoc) => {
+        if (err) throw err;
+        res.status(201).json(newDoc);
+    });
+
 });
   
 
