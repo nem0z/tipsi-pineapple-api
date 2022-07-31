@@ -1,5 +1,6 @@
 import Datastore from 'nedb';
 import { promises as fs } from 'fs';
+import { sum } from './utils.js';
 
 const getRandomInt = max => Math.floor(Math.random() * max);
 const getRandomElement = arr => arr.at(getRandomInt(arr.length));
@@ -25,7 +26,14 @@ fs.readFile('./db/products.json')
             console.log('successfully created :', newDocs);
         });
 
-        let orders = Array(10).fill([]).map(x => ({ order: genOrder(products) }) );
+        let orders = Array(10).fill([]).map(x => ({
+                date: Date.now(),
+                order: genOrder(products),
+            })
+        ).map(order => ({
+            ...order, 
+            price: sum(order.order.map(o => o.price ?? 0))
+        }));
         
         db.orders.insert(orders, (err, newDocs) => {
             if (err) throw err;

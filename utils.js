@@ -26,7 +26,6 @@ const isValidOrder = function(order, productDB) {
 
     });
 
-    console.log(res);
     return Promise.all(res)
         .then(r => r.every(isValid => isValid !== false) ? r : false);
 }
