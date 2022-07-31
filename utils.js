@@ -7,7 +7,8 @@ const isEqualObject = function(obj1, obj2) {
 }
 
 const isValidOrder = function(order, productDB) {
-    if(order.length === 'undefined' || order.legnth < 1) return Promise.resolve(false);
+    const errors = [];
+    if(order.length === 'undefined' || order.legnth < 1) return Promise.resolve({isValid: false});
 
     const res = order.map(o => {
         if(typeof(o) == 'string') {
@@ -22,12 +23,14 @@ const isValidOrder = function(order, productDB) {
                 .catch(err => false);
         }
 
-        return Promise.resolve(false);
+        return Promise.resolve({isValid: false});
 
     });
 
     return Promise.all(res)
-        .then(r => r.every(isValid => isValid !== false) ? r : false);
+        .then(r => r.every(isValid => isValid !== false) ? r : {isValid: false, errors: errors});
 }
 
-export { sum, isValidOrder };
+const sendError = (res, error) => res.status(error.status).json(error);
+
+export { sum, isValidOrder, sendError };

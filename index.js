@@ -1,6 +1,7 @@
 import express from 'express';
 import Datastore from 'nedb-promises';
-import { sum, isValidOrder } from './utils.js';
+import { sum, isValidOrder, sendError } from './utils.js';
+import * as Err from './errors.js';
 // import cors from 'cors'; // A voir
 
 const app = express(); // Create express server
@@ -31,13 +32,12 @@ app.get('/products', (req, res) => {
 app.get('/product/:id', (req, res) => {
     const id = req.params?.id;
 
-    if(!id) return res.sendStatus(400);
+    if(!id) return sendError(res, Err.invalidIdError);
 
     db.products.findOne({ _id: id })
         .then(doc => res.status(200).json(doc))
         .catch(err => {
-            const error = {ok: false, status: 500, message: 'Data not foud'};
-            return res.status(500).json(error);
+            return sendError(res, {...Err.readingDataError, errors: [err]});
         });
 
 });
@@ -46,25 +46,24 @@ app.get('/product/:id', (req, res) => {
 app.get('/orders', (req, res) => {
     
     db.orders.find({})
-    .then(docs => res.status(200).json(docs))
-    .catch(err => res.sendStatus(500));
+        .then(docs => res.status(200).json(docs))
+        .catch(err => res.sendStatus(500));
 
 });
 
 
 app.post('/order', async (req, res) => {
-    if(!req.body) return sendStatus(400);
+    if(!req.body) return sendError(res, Err.noDataError)
 
     const data = await isValidOrder(req.body, db.products);
-    console.log(data);
 
-    if(data === false) return res.sendStatus(400);
+    if(data.isValid === false) return sendError(res, {...Err.invalidDataFormatError, errors: data.erros });
 
     const order = { order: data, date: Date.now(), price: sum(data.map(p => p.price ?? 0)) };
 
     db.orders.insert(order)
         .then(newDoc => res.status(201).json(newDoc))
-        .catch(err => res.status(500).json(`{error: ${err}}`));
+        .catch(err => sendError(res, {...Err.savingDataError, errors: [err]}));
 
 });
   
