@@ -21,7 +21,7 @@ app.use(express.json());
 
 app.get('/products', (req, res) => {
 
-    return db.products.find({})
+    db.products.find({})
         .then(docs => res.status(200).json(docs))
         .catch(err => res.sendStatus(500));
 
@@ -33,7 +33,7 @@ app.get('/product/:id', (req, res) => {
 
     if(!id) return res.sendStatus(400);
 
-    return db.products.findOne({ _id: id })
+    db.products.findOne({ _id: id })
         .then(doc => res.status(200).json(doc))
         .catch(err => {
             const error = {ok: false, status: 500, message: 'Data not foud'};
@@ -45,7 +45,7 @@ app.get('/product/:id', (req, res) => {
 
 app.get('/orders', (req, res) => {
     
-    return db.orders.find({})
+    db.orders.find({})
     .then(docs => res.status(200).json(docs))
     .catch(err => res.sendStatus(500));
 
@@ -60,7 +60,7 @@ app.post('/order', (req, res) => {
     const order = { order: data, date: Date.now(), price: sum(data.map(p => p.price ?? 0)) };
 
     db.orders.insert(order)
-        .then(doc => res.status(201).json(newDoc))
+        .then(newDoc => res.status(201).json(newDoc))
         .catch(err => res.status(500).json(`{error: ${err}}`));
 
 });
