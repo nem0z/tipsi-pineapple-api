@@ -52,10 +52,13 @@ app.get('/orders', (req, res) => {
 });
 
 
-app.post('/order', (req, res) => {
-    const data = req.body;
+app.post('/order', async (req, res) => {
+    if(!req.body) return sendStatus(400);
+
+    const data = await isValidOrder(req.body, db.products);
     console.log(data);
-    if(!data || !isValidOrder(data, db.products)) return res.sendStatus(400);
+
+    if(data === false) return res.sendStatus(400);
 
     const order = { order: data, date: Date.now(), price: sum(data.map(p => p.price ?? 0)) };
 

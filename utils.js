@@ -7,16 +7,28 @@ const isEqualObject = function(obj1, obj2) {
 }
 
 const isValidOrder = function(order, productDB) {
-    if(order.length === 'undefined' || order.legnth < 1) return false;
-    console.log('format ok');
+    if(order.length === 'undefined' || order.legnth < 1) return Promise.resolve(false);
 
     const res = order.map(o => {
-        return productDB.findOne({ _id: o._id })
-            .then(doc => isEqualObject(doc, o))
-            .catch(err => false);
+        if(typeof(o) == 'string') {
+            return productDB.findOne({ _id: o })
+                .then(doc => doc)
+                .catch(err => false);
+        }
+
+        if(o._id) {
+            return productDB.findOne({ _id: o._id })
+                .then(doc => isEqualObject(doc, o) ? doc : false)
+                .catch(err => false);
+        }
+
+        return Promise.resolve(false);
+
     });
 
-    return res.every(isValid => isValid);
+    console.log(res);
+    return Promise.all(res)
+        .then(r => r.every(isValid => isValid !== false) ? r : false);
 }
 
 export { sum, isValidOrder };
