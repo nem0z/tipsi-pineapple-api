@@ -1,14 +1,14 @@
 import express from 'express';
-import Datastore from 'nedb';
+import Datastore from 'nedb-promises';
+import { sum, isValidOrder } from './utils.js';
 // import cors from 'cors'; // A voir
 
 const app = express(); // Create express server
 
-
 // Def db
 const db = {
-    products: new Datastore({ filename: './db/products.db', autoload: true }),
-    orders: new Datastore({ filename: './db/orders.db', autoload: true })
+    products: Datastore.create('./db/products.db'),
+    orders: Datastore.create('./db/orders.db'),
 };
   
 
@@ -21,48 +21,47 @@ app.use(express.json());
 
 app.get('/products', (req, res) => {
 
-    db.products.find({}, (err, docs) => {
-        if(err) return res.sendStatus(500);
-        return res.status(200).json(docs);
-    });
+    return db.products.find({})
+        .then(docs => res.status(200).json(docs))
+        .catch(err => res.sendStatus(500));
 
 });
+
 
 app.get('/product/:id', (req, res) => {
     const id = req.params?.id;
 
-    if(!id) return res.send(400);
+    if(!id) return res.sendStatus(400);
 
-    db.products.findOne({ _id: id }, (err, doc) => {
-        if(err) {
+    return db.products.findOne({ _id: id })
+        .then(doc => res.status(200).json(doc))
+        .catch(err => {
             const error = {ok: false, status: 500, message: 'Data not foud'};
             return res.status(500).json(error);
-        }
-        return res.status(200).json(doc);
-        
-    });
+        });
+
 });
+
 
 app.get('/orders', (req, res) => {
     
-    db.orders.find({}, (err, docs) => {
-        if(err) return res.sendStatus(500);
-        return res.status(200).json(docs);
-        
-    });
+    return db.orders.find({})
+    .then(docs => res.status(200).json(docs))
+    .catch(err => res.sendStatus(500));
 
 });
 
+
 app.post('/order', (req, res) => {
-    console.log(req.body);
+    const data = req.body;
+    console.log(data);
+    if(!data || !isValidOrder(data, db.products)) return res.sendStatus(400);
 
-    if(!req.body) return res.sendStatus(400);
-    const order = { order: req.body };
+    const order = { order: data, date: Date.now(), price: sum(data.map(p => p.price ?? 0)) };
 
-    db.orders.insert(order, (err, newDoc) => {
-        if (err) throw err;
-        res.status(201).json(newDoc);
-    });
+    db.orders.insert(order)
+        .then(doc => res.status(201).json(newDoc))
+        .catch(err => res.status(500).json(`{error: ${err}}`));
 
 });
   
