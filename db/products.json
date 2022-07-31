@@ -1,22 +1,27 @@
 [
     {
         "model": "piPhone 12",
-        "desc": "iPhone 12 at a fair price"
+        "desc": "iPhone 12 at a fair price",
+        "price": 249
     },
     {
         "model": "piPhone 13",
-        "desc": "iPhone 13 at a fair price"
+        "desc": "iPhone 13 at a fair price",
+        "price": 349
     },
     {
         "model": "piPhone 12 PRO",
-        "desc": "iPhone 12 at a fair price, designed for pro"
+        "desc": "iPhone 12 at a fair price, designed for pro",
+        "price": 299
     },
     {
         "model": "piPhone 13 PRO",
-        "desc": "iPhone 13 at a fair price, designed for pro"
+        "desc": "iPhone 13 at a fair price, designed for pro",
+        "price": 399
     }, 
     {
         "model": "piPhone 12 Mini",
-        "desc": "Small iPhone 12 at a fair price"
+        "desc": "Small iPhone 12 at a fair price",
+        "price": 299
     }
 ]
