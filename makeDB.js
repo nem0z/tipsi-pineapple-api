@@ -1,4 +1,4 @@
-import Datastore from 'nedb';
+import Datastore from 'nedb-promises';
 import { promises as fs } from 'fs';
 import { sum } from './utils.js';
 
@@ -18,13 +18,15 @@ await fs.writeFile('./db/orders.db', '')
     .then(() => { console.log('Empty orders.db') });
 
 fs.readFile('./db/products.json')
-    .then((data) => {
-        let products = JSON.parse(data);
+    .then(async data => {
+        let productsJson = JSON.parse(data);
 
-        db.products.insert(products, (err, newDocs) => {
-            if (err) throw err;
-            console.log('successfully created :', newDocs);
-        });
+        let products = await db.products.insert(productsJson)
+            .then(newDocs => { 
+                console.log('successfully created :', newDocs)
+                return newDocs;
+            })
+            .catch(err => console.error(err))
 
         let orders = Array(10).fill([]).map(x => ({
                 date: Date.now(),
@@ -35,10 +37,9 @@ fs.readFile('./db/products.json')
             price: sum(order.order.map(o => o.price ?? 0))
         }));
         
-        db.orders.insert(orders, (err, newDocs) => {
-            if (err) throw err;
-            console.log('successfully created :', newDocs);
-        });
+        db.orders.insert(orders)
+            .then(newDocs => console.log('successfully created :', newDocs))
+            .catch(err => console.error(err));
 
     })
     .catch(err => {
