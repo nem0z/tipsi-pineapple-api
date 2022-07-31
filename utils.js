@@ -1,4 +1,4 @@
-const sum = arr.reduce((ps, a) => ps + a, 0.0);
+const sum = arr => arr.reduce((ps, a) => ps + a, 0.0);
 
 const isEqualObject = function(obj1, obj2) {
     const keys = Object.keys(obj1);
@@ -7,11 +7,13 @@ const isEqualObject = function(obj1, obj2) {
 }
 
 const isValidOrder = function(order, productDB) {
+    if(order.length === 'undefined' || order.legnth < 1) return false;
+    console.log('format ok');
+
     const res = order.map(o => {
-        productDB.findOne({ _id: o._id }, (err, doc) => {
-            if(err) return false;
-            return isEqualObject(doc, order);
-        });
+        return productDB.findOne({ _id: o._id })
+            .then(doc => isEqualObject(doc, o))
+            .catch(err => false);
     });
 
     return res.every(isValid => isValid);
