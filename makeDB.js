@@ -4,7 +4,7 @@ import { sum } from './utils.js';
 
 const getRandomInt = max => Math.floor(Math.random() * max);
 const getRandomElement = arr => arr.at(getRandomInt(arr.length));
-const genOrder = products => Array(getRandomInt(2) + 1).fill({}).map(x => getRandomElement(products));
+const genOrder = products => Array(getRandomInt(3) + 1).fill({}).map(x => getRandomElement(products));
 
 const db = {
     products: new Datastore({ filename: './db/products.db', autoload: true }),
@@ -46,4 +46,3 @@ fs.readFile('./db/products.json')
         console.error(err);
         return err;
     });
-

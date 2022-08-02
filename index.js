@@ -1,8 +1,8 @@
 import express from 'express';
 import Datastore from 'nedb-promises';
+import cors from 'cors';
 import { sum, isValidOrder, sendError } from './utils.js';
 import * as Err from './errors.js';
-// import cors from 'cors'; // A voir
 
 const app = express(); // Create express server
 
@@ -15,7 +15,7 @@ const db = {
 
 // settings
 app.use(express.json());
-// app.use(express.cors()); // A voir
+app.use(cors());
 
 
 // Defining routes
