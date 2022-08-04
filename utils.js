@@ -26,8 +26,7 @@ const isEqualObject = function(obj1, obj2) {
  * @return {Promise<object[]> || Promise<object>} Array of valid order || object with errors resulting to an invalind order
  */
 const isValidOrder = function(order, productDB) {
-    const errors = [];
-    if(order.length === 'undefined' || order.legnth < 1) return Promise.resolve({isValid: false});
+    if(order.length == undefined || order.length < 1) return Promise.resolve(false);
 
     const res = order.map(o => {
         if(typeof(o) == 'string') {
@@ -42,12 +41,12 @@ const isValidOrder = function(order, productDB) {
                 .catch(err => false);
         }
 
-        return Promise.resolve({isValid: false});
+        return Promise.resolve(false);
 
     });
 
     return Promise.all(res)
-        .then(r => r.every(isValid => isValid !== false) ? r : {isValid: false, errors: errors});
+        .then(r => r.every(isValid => isValid !== false) ? r : false);
 }
 
 
