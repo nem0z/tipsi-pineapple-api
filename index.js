@@ -1,7 +1,6 @@
 import express from 'express';
 import Datastore from 'nedb-promises';
-import cors from 'cors';
-import { sum, isValidOrder, sendError } from './utils.js';
+import cors from 'cors';import { sum, isValidOrder, sendError } from './utils.js';
 import * as Err from './errors.js';
 
 const app = express(); // Create express server
@@ -14,8 +13,11 @@ const db = {
   
 
 // settings
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use((err, req, res, next) => {
+    return sendError(res, Err.invalidJsonError);
+});
 
 
 // Defining routes
@@ -50,17 +52,18 @@ app.get('/orders', (req, res) => {
     
     db.orders.find({})
         .then(docs => res.status(200).json(docs))
-        .catch(err => res.sendStatus(500));
+        .catch(err => sendError(res, Err.readingDataError));
 
 });
 
 
 app.post('/order', async (req, res) => {
     if(!req.body) return sendError(res, Err.noDataError)
-
+    if(!Array.isArray(req.body)) return sendError(res, {...Err.invalidDataFormatError, errors: ["Data must be array of Products, received data isn't an array"] });
+    if(req.body.length < 1) return sendError(res, {...Err.invalidDataFormatError, errors: ["Array must contains at least one Product"] });
     const data = await isValidOrder(req.body, db.products);
 
-    if(data.isValid === false) return sendError(res, {...Err.invalidDataFormatError, errors: data.erros });
+    if(data === false) return sendError(res, {...Err.invalidDataFormatError, errors: ["Array must contains Product with all its properties / _id of the product as a string"] });
 
     const order = { order: data, date: Date.now(), price: sum(data.map(p => p.price ?? 0)) };
 
@@ -69,7 +72,6 @@ app.post('/order', async (req, res) => {
         .catch(err => {
             sendError(res, {...Err.savingDataError, errors: [err]})
         });
-
 });
   
 
