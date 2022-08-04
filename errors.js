@@ -24,4 +24,9 @@ const readingDataError = {
     error: "An error occured while reading data from the databse",
 }
 
-export { invalidIdError, noDataError, invalidDataFormatError, savingDataError, readingDataError };
+const invalidJsonError = {
+    status: 400,
+    error: "Invalid JSON",
+}
+
+export { invalidIdError, noDataError, invalidDataFormatError, savingDataError, readingDataError, invalidJsonError };
