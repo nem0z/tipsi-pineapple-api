@@ -1,6 +1,10 @@
 import express from 'express';
 import Datastore from 'nedb-promises';
-import cors from 'cors';import { sum, isValidOrder, sendError } from './utils.js';
+import cors from 'cors';
+
+import swagger from 'pineapple-swagger';
+
+import { sum, isValidOrder, sendError } from './utils.js';
 import * as Err from './errors.js';
 
 const app = express(); // Create express server
@@ -14,10 +18,14 @@ const db = {
 
 // settings
 app.use(cors());
+
 app.use(express.json());
 app.use((err, req, res, next) => {
     return sendError(res, Err.invalidJsonError);
 });
+
+app.use(...await swagger('/api-docs'));
+
 
 
 // Defining routes
